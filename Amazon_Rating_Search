@@ -1,0 +1,83 @@
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.JavascriptExecutor;
+
+public class Amazon_Rating_Search {
+public static void main(String[] args) {
+	
+WebDriver driver = new FirefoxDriver();
+driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+String appUrl = "https://www.amazon.com";
+driver.get(appUrl);
+
+driver.manage().window().maximize();
+
+WebElement text = driver.findElement(By.id("twotabsearchtextbox"));
+
+text.clear();
+
+text.sendKeys("iphone 6");
+driver.findElement(By.xpath(".//*[@id='nav-search']/form/div[2]/div/input")).click();
+
+driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);	  
+
+List<WebElement> anchors = driver.findElement(By.id("result_1")).findElements(By.tagName("a"));
+Iterator<WebElement> i = anchors.iterator();
+String href = "javascript:void(0)";
+while(i.hasNext()) {
+ WebElement anchor = i.next();
+ if(anchor.getAttribute("href").contains(href)) {
+	 
+	 List<WebElement> anchors2 = anchor.findElements(By.tagName("i"));
+	 Iterator<WebElement> i2 = anchors2.iterator();
+	 while(i2.hasNext())
+	 {
+		 WebElement anchor2 = i2.next();
+		 if(anchor2.getAttribute("class").contains("star"))
+		 {
+			 List<WebElement> anchors3 = anchor2.findElements(By.tagName("span"));
+			 Iterator<WebElement> i3 = anchors3.iterator();
+			 while(i3.hasNext())
+			 {
+				 WebElement anchor3 = i3.next();
+				 if(anchor3.getAttribute("class").contains("a-icon-alt"))
+				 {
+					 String rating = anchor3.getAttribute("innerHTML").split(" ")[0];
+					 System.out.println("rating is " + rating); 
+					 if(rating.equals("4.4"))
+					 {
+						 System.out.println("Success");
+					 }
+					 else
+					 {
+						 System.out.println("fail");
+					 }
+					 
+					 break;
+				 }
+			 }
+		 }
+	 }
+     break;
+ }
+
+}
+
+driver.close();
+	   }
+
+
+
+}
+
+
