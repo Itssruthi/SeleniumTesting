@@ -13,71 +13,47 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.JavascriptExecutor;
 
 public class Amazon_Rating_Search {
-public static void main(String[] args) {
+
+public static final String SearchText = "//input[@tabindex='19']";
+public static final String SearchButton = "//input[@tabindex='20']";
+
+	public static void main(String[] args) {
 	
-WebDriver driver = new FirefoxDriver();
-driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
-String appUrl = "https://www.amazon.com";
-driver.get(appUrl);
+		WebDriver driver = new FirefoxDriver();
+		WebDriverWait wait = new WebDriverWait(driver, 10);
 
-driver.manage().window().maximize();
+		String Amazon = "https://www.amazon.com/";
+		String iPhone = "iPhone 6";
 
-WebElement text = driver.findElement(By.id("twotabsearchtextbox"));
+		driver.get(Amazon);
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[contains(.,'Conditions of Use')]")));
 
-text.clear();
+		driver.findElement(By.xpath(SearchText)).clear();
+		driver.findElement(By.xpath(SearchText)).sendKeys(iPhone);
+		driver.findElement(By.xpath(SearchButton)).click();
+		wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//a[contains(.,'Conditions of Use')]")));
 
-text.sendKeys("iphone 6");
-driver.findElement(By.xpath(".//*[@id='nav-search']/form/div[2]/div/input")).click();
+        try {
+            //using the javascript executor, finding rating from amazon page.
+            String ele = (String) ((JavascriptExecutor) driver).executeScript("return document.getElementById(\"atfResults\").getElementsByTagName('ul')[0]." +
+                    "getElementsByClassName('s-result-item celwidget')[3].getElementsByClassName('s-item-container')[0]." +
+                    "getElementsByClassName('a-fixed-left-grid')[0].getElementsByClassName('a-fixed-left-grid-inner')[0]." +
+                    "getElementsByClassName('a-fixed-left-grid-col a-col-right')[0].getElementsByClassName('a-row')[3]." +
+                    "getElementsByClassName('a-column a-span5 a-span-last')[0].getElementsByTagName('span')[1]." +
+                    "getElementsByClassName('a-popover-trigger a-declarative')[0].getElementsByTagName('i')[0]." +
+                    "getElementsByClassName('a-icon-alt')[0].innerHTML;");
+            System.out.println(ele);
+            if(ele.contains("4.")) {
+                System.out.println("Rating is greater than 4");
+            } else {
+                System.out.println("Rating is lower than 4");
+            }
+        } catch(Exception WebDriverException) {
 
-driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);	  
+            System.out.print("\n \t Rating is not available for this product");
+        }
 
-List<WebElement> anchors = driver.findElement(By.id("result_1")).findElements(By.tagName("a"));
-Iterator<WebElement> i = anchors.iterator();
-String href = "javascript:void(0)";
-while(i.hasNext()) {
- WebElement anchor = i.next();
- if(anchor.getAttribute("href").contains(href)) {
-	 
-	 List<WebElement> anchors2 = anchor.findElements(By.tagName("i"));
-	 Iterator<WebElement> i2 = anchors2.iterator();
-	 while(i2.hasNext())
-	 {
-		 WebElement anchor2 = i2.next();
-		 if(anchor2.getAttribute("class").contains("star"))
-		 {
-			 List<WebElement> anchors3 = anchor2.findElements(By.tagName("span"));
-			 Iterator<WebElement> i3 = anchors3.iterator();
-			 while(i3.hasNext())
-			 {
-				 WebElement anchor3 = i3.next();
-				 if(anchor3.getAttribute("class").contains("a-icon-alt"))
-				 {
-					 String rating = anchor3.getAttribute("innerHTML").split(" ")[0];
-					 System.out.println("rating is " + rating); 
-					 if(rating.equals("4.4"))
-					 {
-						 System.out.println("Success");
-					 }
-					 else
-					 {
-						 System.out.println("fail");
-					 }
-					 
-					 break;
-				 }
-			 }
-		 }
-	 }
-     break;
- }
-
+        driver.close();
+    }
 }
-
-driver.close();
-	   }
-
-
-
-}
-
 
